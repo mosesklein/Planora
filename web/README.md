@@ -1,36 +1,39 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Planora - Smart Bus Routing & Optimization
 
-## Getting Started
+[cite_start]Planora is a decision-support system for school transportation planners designed to validate routing logic, avoid API cost traps, and scale cleanly across multiple organizations[cite: 4, 7]. [cite_start]It is built on a "headless first" principle where routing correctness is prioritized over UI[cite: 13, 161].
 
-First, run the development server:
+## 🏗 Three-Layer Architecture
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+[cite_start]Planora is structured into three distinct layers to separate math, data, and UI cleanly[cite: 8, 22, 23]:
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+1. [cite_start]**Layer 1: Core Routing Engine (Python)** The authoritative layer responsible for address normalization, geocoding, matrix generation, and optimization using OR-Tools[cite: 24, 27, 28, 68]. [cite_start]It operates via CLI and headless jobs[cite: 35, 38, 39].
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+2. [cite_start]**Layer 2: Control Plane (Laravel API)** The orchestration layer that manages multi-school data models, job persistence, permissions, and file uploads[cite: 40, 43, 45, 46]. [cite_start]It does not touch optimization math directly[cite: 51].
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+3. [cite_start]**Layer 3: Presentation Layer (Next.js Web UI)** The visualization layer used for importing CSVs, triggering runs, and map visualization via MapLibre/Leaflet[cite: 52, 53, 55, 61, 75].
 
-## Learn More
+## 🛠 Technology Stack
 
-To learn more about Next.js, take a look at the following resources:
+- [cite_start]**Routing & Math:** Python, OR-Tools, Self-hosted OSRM (Docker)[cite: 65, 67, 68].
+- [cite_start]**Backend:** Laravel API, PostgreSQL + PostGIS, Redis (Queues + Job State)[cite: 69, 70, 71, 72].
+- [cite_start]**Frontend:** Next.js[cite: 73, 74].
+- [cite_start]**Infrastructure:** Docker Compose[cite: 76, 77].
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## ⚖️ Core Invariants
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- [cite_start]**Stops are immutable:** They never change unless the physical address changes[cite: 127, 128].
+- [cite_start]**Jobs are ephemeral:** Optimization runs can be recomputed at any time[cite: 127, 129].
+- [cite_start]**Routes are disposable:** They are considered outputs, not state[cite: 127, 130].
+- [cite_start]**OSRM Only:** Google Distance Matrix is explicitly forbidden to prevent cost traps[cite: 154].
 
-## Deploy on Vercel
+## 🚀 Current Implementation Progress
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- [x] [cite_start]Docker Compose environment initialized[cite: 77].
+- [x] Layer 2 (Laravel) models for `Company` and `Stop` created.
+- [x] Database seeded with 20 Brooklyn-based stops for validation.
+- [x] GitHub repository connected and synchronized.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 📂 Folder Structure
+- `/api`: Layer 2 - Laravel Control Plane.
+- `/web`: Layer 3 - Next.js Presentation Layer.
+- `/services/optimizer` (Planned): Layer 1 - Python Routing Engine.
