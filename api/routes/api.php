@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\OsrmController;
 use App\Http\Controllers\StopController;
 
 Route::get('/health', function () {
@@ -10,6 +11,8 @@ Route::get('/health', function () {
         'time' => now()->toISOString(),
     ]);
 });
+
+Route::get('/osrm/route', [OsrmController::class, 'route']);
 
 
 Route::prefix('v1')->group(function () {
