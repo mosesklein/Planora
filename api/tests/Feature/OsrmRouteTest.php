@@ -41,6 +41,14 @@ class OsrmRouteTest extends TestCase
         $response = $this->getJson('/api/osrm/route?from=' . urlencode($from) . '&to=' . urlencode($to));
 
         $response->assertOk()
-            ->assertJsonPath('osrm.code', 'Ok');
+            ->assertJsonPath('osrm.code', 'Ok')
+            ->assertJsonStructure([
+                'distance_meters',
+                'duration_seconds',
+                'osrm' => [
+                    'routes',
+                    'code',
+                ],
+            ]);
     }
 }

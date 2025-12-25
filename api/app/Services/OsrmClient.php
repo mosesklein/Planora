@@ -53,13 +53,34 @@ class OsrmClient
             throw new RuntimeException('Invalid JSON response from OSRM.');
         }
 
-        if (($data['code'] ?? null) !== 'Ok') {
+        if (! array_key_exists('code', $data)) {
+            throw new RuntimeException('OSRM response missing status code.');
+        }
+
+        if ($data['code'] !== 'Ok') {
             $message = $data['message'] ?? 'Unexpected OSRM response code.';
 
             throw new RuntimeException('OSRM error: ' . $message);
         }
 
-        return $data;
+        $route = $data['routes'][0] ?? null;
+
+        if (! is_array($route)) {
+            throw new RuntimeException('OSRM response did not include routes.');
+        }
+
+        $distance = $route['distance'] ?? null;
+        $duration = $route['duration'] ?? null;
+
+        if (! is_numeric($distance) || ! is_numeric($duration)) {
+            throw new RuntimeException('OSRM response missing distance or duration.');
+        }
+
+        return [
+            'distance_meters' => (float) $distance,
+            'duration_seconds' => (float) $duration,
+            'osrm' => $data,
+        ];
     }
 
     /**

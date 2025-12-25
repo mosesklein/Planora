@@ -20,13 +20,12 @@ class OsrmController extends Controller
             $from = $this->parseCoordinate($request->query('from'), 'from');
             $to = $this->parseCoordinate($request->query('to'), 'to');
 
-            $osrmResponse = $this->osrmClient->route([$from, $to]);
-            $firstRoute = $osrmResponse['routes'][0] ?? null;
+            $result = $this->osrmClient->route([$from, $to]);
 
             return response()->json([
-                'distance_meters' => $firstRoute['distance'] ?? null,
-                'duration_seconds' => $firstRoute['duration'] ?? null,
-                'osrm' => $osrmResponse,
+                'distance_meters' => $result['distance_meters'],
+                'duration_seconds' => $result['duration_seconds'],
+                'osrm' => $result['osrm'],
             ]);
         } catch (InvalidArgumentException $exception) {
             return response()->json(['error' => $exception->getMessage()], 422);
