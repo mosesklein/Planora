@@ -24,4 +24,5 @@ Route::prefix('v1')->group(function () {
     });
 
     Route::get('/stops', [StopController::class, 'index']);
+    Route::get('/osrm/table', [OsrmController::class, 'table']);
 });
