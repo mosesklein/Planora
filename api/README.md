@@ -21,6 +21,50 @@ Laravel is a web application framework with expressive, elegant syntax. We belie
 
 Laravel is accessible, powerful, and provides tools required for large, robust applications.
 
+## API & OSRM health
+
+- **Endpoint:** `GET /api/health`
+- **Response:** JSON payload with the overall status plus checks for the database, Redis, and OSRM dependencies.
+
+Example response:
+
+```json
+{
+  "status": "ok",
+  "db": true,
+  "redis": true,
+  "osrm": true,
+  "osrm_message": "ok"
+}
+```
+
+When running locally, the API allows calls from `http://localhost:3000`, which lets the Next.js app query this endpoint directly.
+
+### Environment defaults
+
+- Inside Docker, Laravel should reach OSRM at `http://osrm:5000` (the Compose service name). Set `OSRM_URL` to this value.
+- From the host, OSRM is published on port `5000` via Docker Compose. You can hit it directly (or set an optional `OSRM_URL_HOST=http://localhost:5000` for your own shell usage). The API itself still uses `OSRM_URL`.
+
+### Connectivity checks
+
+Host to OSRM (published port):
+
+```bash
+curl "http://localhost:5000/route/v1/driving/-74.0060,40.7128;-73.935242,40.73061?overview=false&steps=false"
+```
+
+Laravel container to OSRM service name:
+
+```bash
+docker compose exec laravel.test curl "http://osrm:5000/route/v1/driving/-74.0060,40.7128;-73.935242,40.73061?overview=false&steps=false"
+```
+
+API health endpoint from host:
+
+```bash
+curl http://localhost:8000/api/health
+```
+
 ## Learning Laravel
 
 Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.

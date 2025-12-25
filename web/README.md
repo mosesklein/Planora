@@ -152,6 +152,21 @@ A valid JSON response confirms that OSRM is reachable from the application layer
 
 ---
 
+## ▶️ Run the API and Web UI Together (local dev)
+
+1. **Start the Laravel API**
+   * With Sail: `cd api && ./vendor/bin/sail up`
+   * Or directly: `cd api && php artisan serve --host=0.0.0.0 --port=8000`
+2. **Configure the frontend to reach the API**
+   * Create `web/.env.local` (or copy from `.env.local.example`) with `NEXT_PUBLIC_API_BASE_URL=http://localhost:8000`
+3. **Run the Next.js app**
+   * `cd web && npm install`
+   * `npm run dev`
+4. **Test end-to-end**
+   * Visit `http://localhost:3000/routing-jobs` to check health, upload CSVs, view jobs, and trigger synchronous processing against the local API.
+
+---
+
 ## 📌 What This README Represents
 
 This document is the **baseline contract** for Planora.
