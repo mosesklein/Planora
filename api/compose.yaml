@@ -66,15 +66,22 @@ services:
             timeout: 5s
     osrm:
         image: 'osrm/osrm-backend'
+        platform: linux/amd64
         ports:
-            - '5000:5000'
+            - '5001:5000'
         volumes:
-            - '/services/optimizer/osrm_data:/data'
+            - '../services/optimizer/osrm_data:/data'
+        healthcheck:
+            test: ["CMD-SHELL", "curl -fsS 'http://localhost:5000/route/v1/driving/-74.0060,40.7128;-73.935242,40.73061?overview=false&steps=false' >/dev/null"]
+            interval: 30s
+            timeout: 10s
+            retries: 3
+            start_period: 30s
         command: >
             sh -c "DATA_FILE=/data/brooklyn.osm.pbf; OSRM_FILE=/data/brooklyn.osrm;
-            if [ ! -f $DATA_FILE ]; then wget -O $DATA_FILE https://download.geofabrik.de/north-america/us/new-york-latest.osm.pbf; fi;
-            if [ ! -f $OSRM_FILE ]; then osrm-extract -p /opt/car.lua $DATA_FILE && osrm-partition $OSRM_FILE && osrm-customize $OSRM_FILE; fi;
-            osrm-routed --algorithm mld $OSRM_FILE"
+            if [ ! -f $$DATA_FILE ]; then wget -O $$DATA_FILE https://download.geofabrik.de/north-america/us/new-york-latest.osm.pbf; fi;
+            if [ ! -f $$OSRM_FILE ]; then osrm-extract -p /opt/car.lua $$DATA_FILE && osrm-partition $$OSRM_FILE && osrm-customize $$OSRM_FILE; fi;
+            osrm-routed --algorithm mld $$OSRM_FILE"
         networks:
             - sail
 networks:
