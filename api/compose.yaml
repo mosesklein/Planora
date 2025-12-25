@@ -64,6 +64,19 @@ services:
                 - ping
             retries: 3
             timeout: 5s
+    osrm:
+        image: 'osrm/osrm-backend'
+        ports:
+            - '5000:5000'
+        volumes:
+            - '/services/optimizer/osrm_data:/data'
+        command: >
+            sh -c "DATA_FILE=/data/brooklyn.osm.pbf; OSRM_FILE=/data/brooklyn.osrm;
+            if [ ! -f $DATA_FILE ]; then wget -O $DATA_FILE https://download.geofabrik.de/north-america/us/new-york-latest.osm.pbf; fi;
+            if [ ! -f $OSRM_FILE ]; then osrm-extract -p /opt/car.lua $DATA_FILE && osrm-partition $OSRM_FILE && osrm-customize $OSRM_FILE; fi;
+            osrm-routed --algorithm mld $OSRM_FILE"
+        networks:
+            - sail
 networks:
     sail:
         driver: bridge
