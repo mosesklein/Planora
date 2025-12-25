@@ -36,7 +36,12 @@ return [
     ],
 
     'osrm' => [
-        'url' => env('OSRM_URL', 'http://osrm:5000'),
+        'base_url' => env('OSRM_BASE_URL', env('OSRM_URL', 'http://osrm:5000')),
+        'table' => [
+            'max_locations' => env('OSRM_TABLE_MAX_LOCATIONS', 100),
+            'annotations' => env('OSRM_TABLE_ANNOTATIONS', 'duration,distance'),
+            'cache_ttl' => env('OSRM_TABLE_CACHE_TTL', 6 * 60 * 60),
+        ],
     ],
 
 ];

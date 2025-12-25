@@ -9,7 +9,7 @@ class OsrmRouteTest extends TestCase
 {
     public function test_route_endpoint_returns_ok_when_osrm_available(): void
     {
-        $osrmUrl = config('services.osrm.url');
+        $osrmUrl = config('services.osrm.base_url');
 
         if (empty($osrmUrl)) {
             $this->markTestSkipped('OSRM URL not configured.');

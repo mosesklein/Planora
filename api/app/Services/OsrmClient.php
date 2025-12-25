@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Exceptions\OsmrException;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
 use InvalidArgumentException;
@@ -13,7 +14,7 @@ class OsrmClient
 
     public function __construct()
     {
-        $configuredUrl = config('services.osrm.url');
+        $configuredUrl = config('services.osrm.base_url') ?? config('services.osrm.url');
 
         if (empty($configuredUrl)) {
             throw new RuntimeException('OSRM base URL is not configured.');
@@ -84,6 +85,49 @@ class OsrmClient
     }
 
     /**
+     * @param array<int, array{lat: float|int|string, lng: float|int|string}> $coords
+     * @param array<string, mixed> $options
+     */
+    public function table(array $coords, array $options = []): array
+    {
+        $coordinateStrings = $this->validateAndFormatLatLngCoordinates($coords);
+
+        $query = array_merge([
+            'annotations' => config('services.osrm.table.annotations', 'duration,distance'),
+        ], $options);
+
+        $url = $this->baseUrl . '/table/v1/driving/' . implode(';', $coordinateStrings);
+
+        try {
+            $response = Http::timeout(10)->get($url, $query);
+        } catch (ConnectionException $exception) {
+            throw new OsmrException('Failed to reach OSRM service.', 0, null, $exception);
+        }
+
+        if (! $response->successful()) {
+            throw new OsmrException(
+                'OSRM table request failed with status ' . $response->status(),
+                $response->status(),
+                $response->body()
+            );
+        }
+
+        $data = $response->json();
+
+        if (! is_array($data)) {
+            throw new OsmrException('Invalid JSON response from OSRM.', $response->status(), $response->body());
+        }
+
+        if (($data['code'] ?? null) !== 'Ok') {
+            $message = $data['message'] ?? 'Unexpected OSRM response code.';
+
+            throw new OsmrException('OSRM error: ' . $message, $response->status(), $data);
+        }
+
+        return $data;
+    }
+
+    /**
      * @param array<int, array{0: float|int|string, 1: float|int|string}> $coords
      * @return array<int, string>
      */
@@ -107,6 +151,42 @@ class OsrmClient
             }
 
             $formatted[] = sprintf('%s,%s', $this->normalizeNumber($lon), $this->normalizeNumber($lat));
+        }
+
+        return $formatted;
+    }
+
+    /**
+     * @param array<int, array{lat: float|int|string, lng: float|int|string}> $coords
+     * @return array<int, string>
+     */
+    private function validateAndFormatLatLngCoordinates(array $coords): array
+    {
+        $maxLocations = (int) config('services.osrm.table.max_locations', 100);
+
+        if (count($coords) < 2) {
+            throw new InvalidArgumentException('At least two coordinates are required.');
+        }
+
+        if (count($coords) > $maxLocations) {
+            throw new InvalidArgumentException("A maximum of {$maxLocations} coordinates are allowed.");
+        }
+
+        $formatted = [];
+
+        foreach ($coords as $index => $coord) {
+            if (! is_array($coord) || ! array_key_exists('lat', $coord) || ! array_key_exists('lng', $coord)) {
+                throw new InvalidArgumentException("Coordinate at index {$index} must include 'lat' and 'lng'.");
+            }
+
+            $lat = $coord['lat'];
+            $lng = $coord['lng'];
+
+            if (! $this->isValidLatitude($lat) || ! $this->isValidLongitude($lng)) {
+                throw new InvalidArgumentException("Invalid latitude/longitude at index {$index}.");
+            }
+
+            $formatted[] = sprintf('%s,%s', $this->normalizeNumber($lng), $this->normalizeNumber($lat));
         }
 
         return $formatted;
