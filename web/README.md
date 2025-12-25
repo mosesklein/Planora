@@ -1,10 +1,3 @@
-Here is a **clean, final, paste-ready README** you can drop directly into GitHub.
-This version is intentionally **locked as a baseline** and clearly communicates where the project is and what comes next.
-
-You can paste this exactly as-is.
-
----
-
 # Planora - Smart Bus Routing & Optimization
 
 Planora is a decision-support system for school transportation planners.
