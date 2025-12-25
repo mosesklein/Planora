@@ -12,15 +12,19 @@ class HealthController extends Controller
 {
     public function __invoke(): JsonResponse
     {
+        $dbOk = $this->checkDatabase();
+        $redisOk = $this->checkRedis();
         [$osrmOk, $osrmMessage] = $this->checkOsrm();
 
+        $isHealthy = $dbOk && $redisOk && $osrmOk;
+
         return response()->json([
-            'status' => 'ok',
-            'db' => $this->checkDatabase(),
-            'redis' => $this->checkRedis(),
+            'status' => $isHealthy ? 'ok' : 'unhealthy',
+            'db' => $dbOk,
+            'redis' => $redisOk,
             'osrm' => $osrmOk,
             'osrm_message' => $osrmMessage,
-        ]);
+        ], $isHealthy ? 200 : 503);
     }
 
     private function checkDatabase(): bool
