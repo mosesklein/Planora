@@ -36,7 +36,7 @@ def ensure_cache_table(connection: sqlite3.Connection) -> None:
     """Create the cache table if it does not already exist."""
 
     connection.execute(
-        f"
+        f"""
         CREATE TABLE IF NOT EXISTS {CACHE_TABLE} (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             canonical_address TEXT NOT NULL UNIQUE,
@@ -45,7 +45,7 @@ def ensure_cache_table(connection: sqlite3.Connection) -> None:
             lng REAL NOT NULL,
             created_at TEXT DEFAULT CURRENT_TIMESTAMP
         );
-        ""
+        """
     )
     connection.commit()
 
@@ -79,11 +79,11 @@ def save_geocode_result(
     """Persist a geocoding result to the cache."""
 
     connection.execute(
-        f"
+        f"""
         INSERT OR IGNORE INTO {CACHE_TABLE} (
             canonical_address, original_address, lat, lng
         ) VALUES (?, ?, ?, ?);
-        ",
+        """,
         (canonical_address, original_address, lat, lng),
     )
     connection.commit()
