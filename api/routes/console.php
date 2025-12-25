@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Redis;
 use App\Services\Routing\RouteCostService;
+use Throwable;
 
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
