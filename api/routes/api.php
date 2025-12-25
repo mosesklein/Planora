@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\StopController;
 
 Route::get('/health', function () {
     return response()->json([
@@ -18,4 +19,6 @@ Route::prefix('v1')->group(function () {
             'service' => 'planora-api',
         ]);
     });
+
+    Route::get('/stops', [StopController::class, 'index']);
 });
