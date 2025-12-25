@@ -35,4 +35,8 @@ return [
         ],
     ],
 
+    'osrm' => [
+        'url' => env('OSRM_URL', 'http://osrm:5000'),
+    ],
+
 ];
