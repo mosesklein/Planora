@@ -17,7 +17,7 @@ import pandas as pd
 import requests
 from dotenv import load_dotenv
 
-DEFAULT_OSRM_URL = "http://localhost:5000"
+DEFAULT_OSRM_URL = "http://osrm:5000"
 DEFAULT_PENALTY = 1_000_000  # seconds
 
 
