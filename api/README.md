@@ -24,7 +24,7 @@ Laravel is accessible, powerful, and provides tools required for large, robust a
 ## API & OSRM health
 
 - **Endpoint:** `GET /api/health`
-- **Response:** JSON payload with the overall status plus checks for the database, Redis, and OSRM dependencies.
+- **Response:** JSON payload with the overall status plus checks for the database, Redis, and OSRM dependencies. The endpoint returns `503 Service Unavailable` when any dependency is unhealthy.
 
 Example response:
 
@@ -43,14 +43,19 @@ When running locally, the API allows calls from `http://localhost:3000`, which l
 ### Environment defaults
 
 - Inside Docker, Laravel should reach OSRM at `http://osrm:5000` (the Compose service name). Set `OSRM_URL` to this value.
-- From the host, OSRM is published on port `5000` via Docker Compose. You can hit it directly (or set an optional `OSRM_URL_HOST=http://localhost:5000` for your own shell usage). The API itself still uses `OSRM_URL`.
+- From the host, OSRM is published on port `5001` via Docker Compose. You can hit it directly (or set an optional `OSRM_URL_HOST=http://localhost:5001` for your own shell usage). The API itself still uses `OSRM_URL`.
+
+### macOS & Apple Silicon
+
+- OSRM runs under the `linux/amd64` platform to ensure the binaries work on Apple Silicon when using Docker Desktop's emulation.
+- To avoid port conflicts with other services on macOS, OSRM is published on `localhost:5001` while the internal container address remains `http://osrm:5000`.
 
 ### Connectivity checks
 
 Host to OSRM (published port):
 
 ```bash
-curl "http://localhost:5000/route/v1/driving/-74.0060,40.7128;-73.935242,40.73061?overview=false&steps=false"
+curl "http://localhost:5001/route/v1/driving/-74.0060,40.7128;-73.935242,40.73061?overview=false&steps=false"
 ```
 
 Laravel container to OSRM service name:
@@ -63,6 +68,14 @@ API health endpoint from host:
 
 ```bash
 curl http://localhost:8000/api/health
+```
+
+### Routing diagnostics from the container
+
+Run the built-in Artisan command to verify database, Redis, and OSRM connectivity (including DNS resolution and a live routing request):
+
+```bash
+docker compose exec laravel.test php artisan routing:diagnose
 ```
 
 ## Learning Laravel

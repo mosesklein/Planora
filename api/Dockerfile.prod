@@ -1,0 +1,34 @@
+# Build vendor dependencies
+FROM composer:2 AS vendor
+WORKDIR /var/www/html
+COPY composer.json composer.lock ./
+RUN composer install --no-dev --no-interaction --prefer-dist --no-progress --optimize-autoloader
+COPY . .
+RUN composer dump-autoload --optimize
+
+# Build frontend assets
+FROM node:20-alpine AS assets
+WORKDIR /var/www/html
+COPY package*.json ./
+RUN npm ci --no-audit --no-fund
+COPY . .
+RUN npm run build
+
+# Application runtime
+FROM php:8.2-fpm-alpine
+
+RUN apk add --no-cache bash curl git postgresql-client libpq-dev icu-dev libzip-dev oniguruma-dev \
+    && docker-php-ext-install bcmath intl opcache pcntl pdo_pgsql zip \
+    && pecl install redis \
+    && docker-php-ext-enable redis
+
+WORKDIR /var/www/html
+
+COPY --from=vendor /var/www/html /var/www/html
+COPY --from=assets /var/www/html/public ./public
+
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+
+USER www-data
+
+CMD ["php-fpm"]
