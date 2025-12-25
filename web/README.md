@@ -171,20 +171,3 @@ This document is the **baseline contract** for Planora.
 All future work builds forward from here.
 
 ---
-
-### What to do next (recommended)
-
-1. Commit this README change
-2. Open a PR titled:
-   **“Docs: lock baseline architecture and OSRM setup”**
-3. Merge once reviewed
-4. Move on to Codex-driven tasks for Layer 1 and Layer 2 logic
-
-If you want, next I can:
-
-* Define the **next Codex task list**
-* Write the **first routing engine spec**
-* Help you create the **PR description**
-* Or map the **Phase 0 CLI tool** step-by-step
-
-Just tell me where you want to go next.
