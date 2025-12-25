@@ -118,7 +118,7 @@ Artisan::command('routing:diagnose', function () {
         DB::connection()->getPdo();
         $dbHealthy = true;
         $this->info('Database connection: ok');
-    } catch (Throwable $e) {
+    } catch (\Throwable $e) {
         $this->error('Database connection failed: ' . $e->getMessage());
     }
 
@@ -127,7 +127,7 @@ Artisan::command('routing:diagnose', function () {
         Redis::connection()->ping();
         $redisHealthy = true;
         $this->info('Redis connection: ok');
-    } catch (Throwable $e) {
+    } catch (\Throwable $e) {
         $this->error('Redis connection failed: ' . $e->getMessage());
     }
 
@@ -171,7 +171,7 @@ Artisan::command('routing:diagnose', function () {
                             $this->error('OSRM returned a non-Ok response code.');
                         }
                     }
-                } catch (Throwable $e) {
+                } catch (\Throwable $e) {
                     $this->error('OSRM request failed: ' . $e->getMessage());
                 }
             }
